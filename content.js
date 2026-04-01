@@ -7,6 +7,7 @@
   ];
   const STYLE_ID = "env-border-extension-style";
   const BADGE_ID = "env-border-extension-badge";
+  const OVERLAY_ID = "env-border-extension-overlay";
 
   function safeParseRegex(pattern) {
     try { return new RegExp(pattern, "i"); }
@@ -36,6 +37,7 @@
   function clearBorder() {
     document.getElementById(STYLE_ID)?.remove();
     document.getElementById(BADGE_ID)?.remove();
+    document.getElementById(OVERLAY_ID)?.remove();
   }
 
   function applyBorder(rule) {
@@ -43,8 +45,10 @@
 
     const style = document.createElement("style");
     style.id = STYLE_ID;
-    style.textContent = `html { box-sizing: border-box !important; border: 6px solid ${rule.color} !important; }`;
+    style.textContent = `#${OVERLAY_ID} { position: fixed !important; inset: 0 !important; box-sizing: border-box !important; border: 6px solid ${rule.color} !important; pointer-events: none !important; z-index: 2147483646 !important; }`;
     document.documentElement.appendChild(style);
+    const overlay = document.createElement("div");
+    overlay.id = OVERLAY_ID;
 
     const badge = document.createElement("div");
     badge.id = BADGE_ID;
@@ -65,12 +69,15 @@
     });
 
     const appendBadge = () => {
-      if (!document.body) return;
+      const parent = document.body || document.documentElement;
+      if (!parent) return;
+      document.getElementById(OVERLAY_ID)?.remove();
       document.getElementById(BADGE_ID)?.remove();
-      document.body.appendChild(badge);
+      parent.appendChild(overlay);
+      parent.appendChild(badge);
     };
 
-    if (document.body) {
+    if (document.documentElement) {
       appendBadge();
       return;
     }
