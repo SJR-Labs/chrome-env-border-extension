@@ -1,4 +1,4 @@
-# Environment Border Highlighter (Chrome / Brave Extension)
+# Environment Highlighter (Chrome / Brave Extension)
 A lightweight browser extension that visually distinguishes environments (e.g. PROD, UAT, INT, LOCAL) by applying a colored border and badge to every page based on its domain.
 
 Designed to reduce costly mistakes when working across multiple environments.
