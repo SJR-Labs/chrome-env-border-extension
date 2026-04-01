@@ -39,3 +39,5 @@ Open Chrome / Brave:
 * Enable Developer mode
 * Click `Load unpacked`
 * Select the project folder
+
+## ADDON
