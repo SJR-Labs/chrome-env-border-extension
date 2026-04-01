@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Environment Border Highlighter (Enterprise)",
+  "version": "2.0",
+  "description": "Environment highlighter with strict matching and validation",
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "options_page": "options.html"
+}
