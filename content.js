@@ -1,17 +1,20 @@
 (function () {
   const DEFAULT_RULES = [
-    { regex: "^localhost$|^127\\.0\\.0\\.1$", color: "#4CAF50", label: "LOCAL", priority: 100 },
-    { regex: "(^|\\.)int\\.", color: "#2196F3", label: "INT", priority: 80 },
-    { regex: "(^|\\.)uat\\.", color: "#FF9800", label: "UAT", priority: 60 },
-    { regex: "(^|\\.)prod\\.", color: "#F44336", label: "PROD", priority: 40 }
+    {regex: "^localhost$|^127\\.0\\.0\\.1$", color: "#4CAF50", label: "LOCAL", priority: 100},
+    {regex: "(^|\\.)int\\.", color: "#2196F3", label: "INT", priority: 80},
+    {regex: "(^|\\.)uat\\.", color: "#FF9800", label: "UAT", priority: 60},
+    {regex: "(^|\\.)prod\\.", color: "#F44336", label: "PROD", priority: 40}
   ];
   const STYLE_ID = "env-border-extension-style";
   const BADGE_ID = "env-border-extension-badge";
   const OVERLAY_ID = "env-border-extension-overlay";
 
   function safeParseRegex(pattern) {
-    try { return new RegExp(pattern, "i"); }
-    catch { return null; }
+    try {
+      return new RegExp(pattern, "i");
+    } catch {
+      return null;
+    }
   }
 
   function normalizeRules(rules) {
@@ -29,7 +32,7 @@
 
   function getMatchingRule(hostname, rules) {
     return rules
-      .map(r => ({ ...r, regexObj: safeParseRegex(r.regex) }))
+      .map(r => ({...r, regexObj: safeParseRegex(r.regex)}))
       .filter(r => r.regexObj && r.regexObj.test(hostname))
       .sort((a, b) => b.priority - a.priority)[0];
   }
@@ -82,7 +85,7 @@
       return;
     }
 
-    document.addEventListener("DOMContentLoaded", appendBadge, { once: true });
+    document.addEventListener("DOMContentLoaded", appendBadge, {once: true});
   }
 
   function evaluateRules(rules) {
@@ -97,7 +100,7 @@
     clearBorder();
   }
 
-  chrome.storage.sync.get({ rules: DEFAULT_RULES }, (result) => {
+  chrome.storage.sync.get({rules: DEFAULT_RULES}, (result) => {
     evaluateRules(result.rules);
   });
 

@@ -5,45 +5,64 @@ const DEFAULT_RULES = [
   { regex: '(^|\\.)prod\\.', color: '#F44336', label: 'PROD', priority: 40 }
 ];
 
-function createField(labelText, input) {
-  const label = document.createElement('label');
-  label.append(`${labelText}:`, input);
+function createField(element, input) {
+  const label = document.createElement(element);
+  if (element === 'th') {
+    label.setAttribute('scope', "row");
+  }
+  label.append(input);
   return label;
 }
 
-function createRow(r = { regex: '', color: '#000000', label: '', priority: 50 }) {
-  const d = document.createElement('div');
+function createRow(r = {regex: '', color: '#000000', label: '', priority: 50}, i) {
+  let index;
+  if (index === undefined) {
+    const table = document.getElementById("rule_table");
+    index = table.rows.length - 1;
+  }else{
+    index = i;
+  }
+
+  const d = document.createElement('tr');
+  d.id = "rule_" + index;
   const regex = document.createElement('input');
   const color = document.createElement('input');
   const label = document.createElement('input');
   const priority = document.createElement('input');
   const remove = document.createElement('button');
 
+  regex.id = 'regex_' + index;
+  regex.type = 'text';
   regex.className = 'regex';
   regex.value = r.regex;
 
+  color.id = 'color_' + index;
   color.type = 'color';
   color.className = 'color';
   color.value = r.color;
 
+  label.id = 'label_' + index;
+  label.type = 'text';
   label.className = 'label';
   label.value = r.label;
 
+  priority.id = 'priority_' + index;
   priority.type = 'number';
   priority.className = 'priority';
   priority.value = Number.isFinite(Number(r.priority)) ? Number(r.priority) : 50;
 
+  remove.id = 'remove_' + index;
   remove.type = 'button';
   remove.className = 'rm';
   remove.textContent = 'X';
   remove.onclick = () => d.remove();
 
   d.append(
-    createField('Regex', regex),
-    createField('Color', color),
-    createField('Label', label),
-    createField('Priority', priority),
-    remove
+    createField('th', regex),
+    createField('td', color),
+    createField('td', label),
+    createField('td', priority),
+    createField('td', remove),
   );
   return d;
 }
@@ -51,7 +70,7 @@ function createRow(r = { regex: '', color: '#000000', label: '', priority: 50 })
 function renderRules(rules) {
   const container = document.getElementById('rules');
   container.innerHTML = '';
-  rules.forEach(r => container.appendChild(createRow(r)));
+  rules.forEach((r, index) => container.appendChild(createRow(r, index)));
 }
 
 function validateRules(rules) {
@@ -88,7 +107,7 @@ function load() {
 }
 
 function collect() {
-  return Array.from(document.querySelectorAll('#rules>div')).map(d => ({
+  return Array.from(document.querySelectorAll(`tbody#rules tr`)).map(d => ({
     regex: d.querySelector('.regex').value,
     color: d.querySelector('.color').value,
     label: d.querySelector('.label').value,
@@ -100,7 +119,7 @@ document.getElementById('add').onclick = () => document.getElementById('rules').
 document.getElementById('save').onclick = () => {
   try {
     const rules = validateRules(collect());
-    chrome.storage.sync.set({ rules }, () => alert('Saved'));
+    chrome.storage.sync.set({rules}, () => alert('Saved'));
   } catch (error) {
     alert(error.message);
   }
@@ -124,7 +143,7 @@ document.getElementById('fileInput').onchange = e => {
     try {
       const parsed = JSON.parse(reader.result);
       const rules = validateRules(parsed);
-      chrome.storage.sync.set({ rules }, () => load());
+      chrome.storage.sync.set({rules}, () => load());
     } catch (error) {
       alert(error.message || 'Invalid rules file.');
     } finally {

@@ -1,16 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light"/>
   <title>Environment Rules</title>
+  <link
+    rel="stylesheet"
+    href="css/pico.min.css"
+  >
+  <link
+    rel="stylesheet"
+    href="css/pico.lime.min.css"
+  >
+  <style>
+    :root {
+      --pico-spacing: 5px;
+      --pico-form-element-spacing-vertical: 0.5rem;
+      --pico-form-element-spacing-horizontal: 0.75rem;
+    }
+  </style>
 </head>
 <body>
+<header class="container">
   <h2>Environment Rules</h2>
-  <div id="rules"></div>
-  <button id="add">Add</button>
-  <button id="save">Save</button>
-  <button id="export">Export</button>
-  <button id="import">Import</button>
-  <input type="file" id="fileInput" style="display:none" />
-  <script src="options.js"></script>
+</header>
+<main class="container">
+  <table id="rule_table" class="striped">
+    <thead>
+    <tr>
+      <th scope="col">Regex</th>
+      <th scope="col">Color</th>
+      <th scope="col">Label</th>
+      <th scope="col">Priority</th>
+      <th scope="col">Remove</th>
+    </tr>
+    </thead>
+    <tbody id="rules">
+    </tbody>
+    <tfoot>
+    <tr>
+      <th scope="row" colspan="5">
+        <button id="add">Add</button>
+        <button id="save">Save</button>
+        <button id="export">Export</button>
+        <button id="import">Import</button>
+      </th>
+    </tr>
+    </tfoot>
+  </table>
+</main>
+
+<input type="file" id="fileInput" style="display:none"/>
+<script src="options.js"></script>
 </body>
 </html>
