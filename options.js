@@ -1,3 +1,7 @@
+const PRIORITY_MIN = '0';
+const PRIORITY_MAX = '100';
+const PRIORITY_STEP = '5';
+const PRIORITY_STEP_INT = parseInt(PRIORITY_STEP);
 const DEFAULT_RULES = [
   { regex: '^localhost$|^127\\.0\\.0\\.1$', color: '#4CAF50', label: 'LOCAL', priority: 100 },
   { regex: '(^|\\.)int\\.', color: '#2196F3', label: 'INT', priority: 80 },
@@ -18,6 +22,26 @@ function createField(element, input) {
   }
   label.append(input);
   return label;
+}
+
+function changePriorityValidationListener() {
+  return (e) => {
+    const el = e.target;
+    const min = parseInt(el.min);
+    const max = parseInt(el.max);
+    const valueUnround = parseInt(el.value);
+    const value = Math.round(valueUnround / PRIORITY_STEP_INT) * PRIORITY_STEP_INT;
+
+    if (el.value !== "" && !isNaN(value)) {
+      if (min !== undefined && value < min) {
+        el.value = min;
+      } else if (max !== undefined && value > max) {
+        el.value = max;
+      } else{
+        el.value = value;
+      }
+    }
+  };
 }
 
 function createRow(r = {regex: '', color: '#000000', label: '', priority: 50}, i) {
@@ -50,12 +74,19 @@ function createRow(r = {regex: '', color: '#000000', label: '', priority: 50}, i
   priority.type = 'number';
   priority.className = 'priority';
   priority.value = Number.isFinite(Number(r.priority)) ? Number(r.priority) : 50;
+  priority.min = PRIORITY_MIN;
+  priority.max = PRIORITY_MAX;
+  priority.step = PRIORITY_STEP;
+  priority.addEventListener('change', changePriorityValidationListener());
 
   remove.id = 'remove_' + index;
   remove.type = 'button';
   remove.className = 'rm';
   remove.textContent = 'X';
-  remove.onclick = () => d.remove();
+  remove.addEventListener('click',() => {
+    priority.removeEventListener('change', changePriorityValidationListener());
+    d.remove();
+  });
 
   d.append(
     createField('th', regex),
