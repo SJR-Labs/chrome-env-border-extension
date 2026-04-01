@@ -34,8 +34,8 @@ This extension provides an immediate, always-visible signal of where you are.
 ## Install
 Open Chrome / Brave:
 
-* Clone this repository
-* Open chrome://extensions/
+* Clone this [repository](https://github.com/juergenrockmann/chrome-env-border-extension)
+* Open [chrome://extensions/](chrome://extensions/)
 * Enable Developer mode
-* Click Load unpacked
+* Click `Load unpacked`
 * Select the project folder
