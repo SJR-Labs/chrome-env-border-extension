@@ -5,10 +5,25 @@
     { regex: "(^|\\.)uat\\.", color: "#FF9800", label: "UAT", priority: 60 },
     { regex: "(^|\\.)prod\\.|(^|\\.)www\\.", color: "#F44336", label: "PROD", priority: 40 }
   ];
+  const STYLE_ID = "env-border-extension-style";
+  const BADGE_ID = "env-border-extension-badge";
 
   function safeParseRegex(pattern) {
     try { return new RegExp(pattern, "i"); }
     catch { return null; }
+  }
+
+  function normalizeRules(rules) {
+    if (!Array.isArray(rules)) return DEFAULT_RULES;
+
+    return rules
+      .map(r => ({
+        regex: typeof r.regex === "string" ? r.regex.trim() : "",
+        color: typeof r.color === "string" ? r.color : "",
+        label: typeof r.label === "string" ? r.label.trim() : "",
+        priority: Number(r.priority)
+      }))
+      .filter(r => r.regex && r.color && r.label && Number.isFinite(r.priority));
   }
 
   function getMatchingRule(hostname, rules) {
@@ -18,12 +33,21 @@
       .sort((a, b) => b.priority - a.priority)[0];
   }
 
+  function clearBorder() {
+    document.getElementById(STYLE_ID)?.remove();
+    document.getElementById(BADGE_ID)?.remove();
+  }
+
   function applyBorder(rule) {
+    clearBorder();
+
     const style = document.createElement("style");
+    style.id = STYLE_ID;
     style.textContent = `html { box-sizing: border-box !important; border: 6px solid ${rule.color} !important; }`;
     document.documentElement.appendChild(style);
 
     const badge = document.createElement("div");
+    badge.id = BADGE_ID;
     badge.textContent = rule.label;
     Object.assign(badge.style, {
       position: "fixed",
@@ -40,19 +64,38 @@
       pointerEvents: "none"
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
+    const appendBadge = () => {
+      if (!document.body) return;
+      document.getElementById(BADGE_ID)?.remove();
       document.body.appendChild(badge);
-    });
+    };
+
+    if (document.body) {
+      appendBadge();
+      return;
+    }
+
+    document.addEventListener("DOMContentLoaded", appendBadge, { once: true });
   }
 
-  function validateRules(rules) {
-    return rules.filter(r => r.regex && r.color && r.label && typeof r.priority === "number");
-  }
-
-  chrome.storage.sync.get(["rules"], (result) => {
+  function evaluateRules(rules) {
     const hostname = window.location.hostname.toLowerCase();
-    const rules = validateRules(result.rules || DEFAULT_RULES);
-    const match = getMatchingRule(hostname, rules);
-    if (match) applyBorder(match);
+    const match = getMatchingRule(hostname, normalizeRules(rules));
+
+    if (match) {
+      applyBorder(match);
+      return;
+    }
+
+    clearBorder();
+  }
+
+  chrome.storage.sync.get({ rules: DEFAULT_RULES }, (result) => {
+    evaluateRules(result.rules);
+  });
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== "sync" || !changes.rules) return;
+    evaluateRules(changes.rules.newValue);
   });
 })();
