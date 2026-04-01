@@ -4,27 +4,27 @@ const DEFAULT_RULES = [
   { regex: '(^|\\.)uat\\.', color: '#FF9800', label: 'UAT', priority: 60 },
   { regex: '(^|\\.)prod\\.', color: '#F44336', label: 'PROD', priority: 40 }
 ];
+const rulesContainer = document.getElementById('rules');
+const addButton = document.getElementById('add');
+const saveButton = document.getElementById('save');
+const exportButton = document.getElementById('export');
+const importButton = document.getElementById('import');
+const fileInput = document.getElementById('fileInput');
 
 function createField(element, input) {
   const label = document.createElement(element);
   if (element === 'th') {
-    label.setAttribute('scope', "row");
+    label.setAttribute('scope', 'row');
   }
   label.append(input);
   return label;
 }
 
 function createRow(r = {regex: '', color: '#000000', label: '', priority: 50}, i) {
-  let index;
-  if (index === undefined) {
-    const table = document.getElementById("rule_table");
-    index = table.rows.length - 1;
-  }else{
-    index = i;
-  }
+  const index = i ?? rulesContainer.children.length;
 
   const d = document.createElement('tr');
-  d.id = "rule_" + index;
+  d.id = 'rule_' + index;
   const regex = document.createElement('input');
   const color = document.createElement('input');
   const label = document.createElement('input');
@@ -68,9 +68,10 @@ function createRow(r = {regex: '', color: '#000000', label: '', priority: 50}, i
 }
 
 function renderRules(rules) {
-  const container = document.getElementById('rules');
-  container.innerHTML = '';
-  rules.forEach((r, index) => container.appendChild(createRow(r, index)));
+  const fragment = document.createDocumentFragment();
+  rulesContainer.innerHTML = '';
+  rules.forEach((r, index) => fragment.appendChild(createRow(r, index)));
+  rulesContainer.appendChild(fragment);
 }
 
 function validateRules(rules) {
@@ -107,7 +108,7 @@ function load() {
 }
 
 function collect() {
-  return Array.from(document.querySelectorAll(`tbody#rules tr`)).map(d => ({
+  return Array.from(rulesContainer.querySelectorAll('tr')).map(d => ({
     regex: d.querySelector('.regex').value,
     color: d.querySelector('.color').value,
     label: d.querySelector('.label').value,
@@ -115,26 +116,28 @@ function collect() {
   }));
 }
 
-document.getElementById('add').onclick = () => document.getElementById('rules').appendChild(createRow());
-document.getElementById('save').onclick = () => {
+addButton.addEventListener('click', () => rulesContainer.appendChild(createRow()));
+saveButton.addEventListener('click', () => {
   try {
     const rules = validateRules(collect());
     chrome.storage.sync.set({rules}, () => alert('Saved'));
   } catch (error) {
     alert(error.message);
   }
-};
+});
 
-document.getElementById('export').onclick = () => {
+exportButton.addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(collect(), null, 2)]);
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  a.href = url;
   a.download = 'rules.json';
   a.click();
-};
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+});
 
-document.getElementById('import').onclick = () => document.getElementById('fileInput').click();
-document.getElementById('fileInput').onchange = e => {
+importButton.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
 
@@ -143,7 +146,7 @@ document.getElementById('fileInput').onchange = e => {
     try {
       const parsed = JSON.parse(reader.result);
       const rules = validateRules(parsed);
-      chrome.storage.sync.set({rules}, () => load());
+      chrome.storage.sync.set({rules}, () => renderRules(rules));
     } catch (error) {
       alert(error.message || 'Invalid rules file.');
     } finally {
@@ -155,6 +158,6 @@ document.getElementById('fileInput').onchange = e => {
     e.target.value = '';
   };
   reader.readAsText(file);
-};
+});
 
 load();
