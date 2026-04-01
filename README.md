@@ -40,4 +40,4 @@ Open Chrome / Brave:
 * Click `Load unpacked`
 * Select the project folder
 
-## ADDON
+## ADDON 2
