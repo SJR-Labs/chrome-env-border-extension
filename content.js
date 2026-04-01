@@ -3,7 +3,7 @@
     { regex: "^localhost$|^127\\.0\\.0\\.1$", color: "#4CAF50", label: "LOCAL", priority: 100 },
     { regex: "(^|\\.)int\\.", color: "#2196F3", label: "INT", priority: 80 },
     { regex: "(^|\\.)uat\\.", color: "#FF9800", label: "UAT", priority: 60 },
-    { regex: "(^|\\.)prod\\.|(^|\\.)www\\.", color: "#F44336", label: "PROD", priority: 40 }
+    { regex: "(^|\\.)prod\\.", color: "#F44336", label: "PROD", priority: 40 }
   ];
   const STYLE_ID = "env-border-extension-style";
   const BADGE_ID = "env-border-extension-badge";
