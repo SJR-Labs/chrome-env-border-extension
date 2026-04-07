@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light"/>
+  <title>Environment Rules</title>
+  <style>
+    :root {
+      --pico-spacing: 5px;
+      --pico-form-element-spacing-vertical: 0.5rem;
+      --pico-form-element-spacing-horizontal: 0.75rem;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/options-lncmlprt.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/options-DXIIGVh5.css">
+</head>
+<body>
+<header class="container">
+  <h2>Environment Rules</h2>
+</header>
+<main class="container">
+  <table id="rule_table" class="striped">
+    <thead>
+    <tr>
+      <th scope="col">Regex</th>
+      <th scope="col">Color</th>
+      <th scope="col">Label</th>
+      <th scope="col">Priority</th>
+      <th scope="col">Remove</th>
+    </tr>
+    </thead>
+    <tbody id="rules">
+    </tbody>
+    <tfoot>
+    <tr>
+      <th scope="row" colspan="5">
+        <button id="add">Add</button>
+        <button id="save">Save</button>
+        <button id="export">Export</button>
+        <button id="import">Import</button>
+      </th>
+    </tr>
+    </tfoot>
+  </table>
+</main>
+
+<input type="file" id="fileInput" style="display:none"/>
+</body>
+</html>
