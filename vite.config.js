@@ -17,7 +17,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         content: resolve(__dirname, 'src/content.js'),
-        options: resolve(__dirname, 'src/options.html')
+        options: resolve(__dirname, 'options.html')
       },
       output: {
         entryFileNames: chunkInfo => chunkInfo.name === 'content' ? 'content.js' : 'assets/[name]-[hash].js',
