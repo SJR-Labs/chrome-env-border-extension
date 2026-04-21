@@ -38,4 +38,4 @@ Open Chrome / Brave:
 * Open [chrome://extensions/](chrome://extensions/)
 * Enable Developer mode
 * Click `Load unpacked`
-* Select the project folder
+* Select the dist folder of this project
