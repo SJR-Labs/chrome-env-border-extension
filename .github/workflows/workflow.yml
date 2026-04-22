@@ -23,18 +23,16 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: webApp/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: webApp
         run: npm ci
 
       - name: Build
-        working-directory: webApp
         run: npm run build
 
       - name: Create ZIP
-        run: zip -r ${{ env.ZIP_NAME}}-${{ github.ref_name }}.zip webApp/dist/
+        run: zip -r ${{ env.ZIP_NAME}}-${{ github.ref_name }}.zip dist/
 
       - name: Upload to release
         env:
