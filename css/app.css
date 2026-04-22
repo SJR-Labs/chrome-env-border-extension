@@ -1,0 +1,32 @@
+:root {
+    --pico-spacing: 5px;
+    --pico-form-element-spacing-vertical: 0.5rem;
+    --pico-form-element-spacing-horizontal: 0.75rem;
+}
+
+.color {
+    min-width: 100px;
+}
+
+.toastContain {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050; /* Ensure it appears above other content */
+}
+
+.toast {
+    /* Optional: Add spacing between stacked toasts */
+    margin-bottom: 10px;
+    /* Example styling */
+    color: white;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.toast-error {
+    background: #f74a4a;
+}
+.toast-info {
+    background: #41a603;
+}
