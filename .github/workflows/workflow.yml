@@ -1,35 +1,42 @@
-name: Deploy
+name: Release WebApp Build
 
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+env:
+  ZIP_NAME: chrome-env-border-extension
 
 jobs:
-  build:
-    name: Build
+  build-and-upload:
+    if: github.event.release.target_commitish == 'main'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node
+      - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 24
-          cache: npm
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: webApp/package-lock.json
 
       - name: Install dependencies
+        working-directory: webApp
         run: npm ci
 
-      - name: Build project
+      - name: Build
+        working-directory: webApp
         run: npm run build
 
-      - name: Upload production-ready build files
-        uses: actions/upload-artifact@v7
-        with:
-          name: production-files
-          path: ./dist
+      - name: Create ZIP
+        run: zip -r ${{ env.ZIP_NAME}}-${{ github.ref_name }}.zip webApp/dist/
 
-
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.ref_name }}" ${{ env.ZIP_NAME}}-${{ github.ref_name }}.zip --clobber
