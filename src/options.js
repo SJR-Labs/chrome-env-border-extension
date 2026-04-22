@@ -1,24 +1,30 @@
+import { parse, stringify} from 'comment-json';
+
 const FADE_DUR = 500;
 const DISPLAY_DUR = 3000;
-let toastContain;
+
+const FILE_NAME = 'border-rules.jsonc';
 const MAX_ENTRIES = 20;
+
 const PRIORITY_MIN = '0';
 const PRIORITY_MAX = '100';
 const PRIORITY_STEP = '5';
 const PRIORITY_STEP_INT = parseInt(PRIORITY_STEP);
+
 const DEFAULT_RULES = [
   { regex: '^localhost$|^127\\.0\\.0\\.1$', color: '#4CAF50', label: 'LOCAL', priority: 100 },
   { regex: '(^|\\.)int\\.', color: '#2196F3', label: 'INT', priority: 80 },
   { regex: '(^|\\.)uat\\.', color: '#FF9800', label: 'UAT', priority: 60 },
   { regex: '(^|\\.)prod\\.', color: '#F44336', label: 'PROD', priority: 40 }
 ];
+
 const rulesContainer = document.getElementById('rules');
 const addButton = document.getElementById('add');
 const saveButton = document.getElementById('save');
 const exportButton = document.getElementById('export');
 const importButton = document.getElementById('import');
 const fileInput = document.getElementById('fileInput');
-const demoCLick = document.getElementById('demoClick');
+const toastContain = document.getElementById('toastContain');
 
 function createField(element, input) {
   const label = document.createElement(element);
@@ -180,11 +186,11 @@ exportButton.addEventListener('click', () => {
   try{
     const rules = validateRules(collect());
 
-    const blob = new Blob([JSON.stringify(rules, null, 2)]);
+    const blob = new Blob([stringify(rules, null, 2)]);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'border-rules.json';
+    a.download = FILE_NAME;
     a.click();
     setTimeout(() => {
       URL.revokeObjectURL(url);
@@ -202,7 +208,7 @@ fileInput.addEventListener('change', e => {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      const parsed = JSON.parse(reader.result);
+      const parsed = parse(reader.result);
       const rules = validateRules(parsed);
       chrome.storage.sync.set({rules}, () => renderRules(rules));
     } catch (error) {
@@ -219,12 +225,6 @@ fileInput.addEventListener('change', e => {
 });
 
 function toast(message, extraClasses = "toast-error") {
-  if (!toastContain) {
-    toastContain = document.createElement("div");
-    toastContain.classList.add("toastContain");
-    document.body.appendChild(toastContain);
-  }
-
   const EL = document.createElement("div");
   if(extraClasses !== undefined || extraClasses !== "") {
     EL.classList.add("toast", extraClasses);
