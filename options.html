@@ -13,17 +13,10 @@
     rel="stylesheet"
     href="/css/pico.lime.min.css"
   >
-  <style>
-    :root {
-      --pico-spacing: 5px;
-      --pico-form-element-spacing-vertical: 0.5rem;
-      --pico-form-element-spacing-horizontal: 0.75rem;
-    }
-
-    .color {
-      min-width: 100px;
-    }
-  </style>
+  <link
+    rel="stylesheet"
+    href="/css/app.css"
+  >
 </head>
 <body>
 <header class="container">
@@ -33,6 +26,7 @@
   <table id="rule_table" class="striped">
     <thead>
     <tr>
+      <th scope="col">Rule</th>
       <th scope="col">Regex</th>
       <th scope="col">Color</th>
       <th scope="col">Label</th>
@@ -44,7 +38,7 @@
     </tbody>
     <tfoot>
     <tr>
-      <th scope="row" colspan="5">
+      <th scope="row" colspan="6">
         <button id="add">Add</button>
         <button id="save">Save</button>
         <button id="export">Export</button>
@@ -54,8 +48,8 @@
     </tfoot>
   </table>
 </main>
-
 <input type="file" id="fileInput" style="display:none"/>
+<div id="toastContain" class="toastContain"></div>
 <script type="module" src="src/options.js"></script>
 </body>
 </html>

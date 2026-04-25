@@ -1,19 +1,30 @@
+import { parse, stringify} from 'comment-json';
+
+const FADE_DUR = 500;
+const DISPLAY_DUR = 3000;
+
+const FILE_NAME = 'border-rules.jsonc';
+const MAX_ENTRIES = 20;
+
 const PRIORITY_MIN = '0';
 const PRIORITY_MAX = '100';
 const PRIORITY_STEP = '5';
 const PRIORITY_STEP_INT = parseInt(PRIORITY_STEP);
+
 const DEFAULT_RULES = [
   { regex: '^localhost$|^127\\.0\\.0\\.1$', color: '#4CAF50', label: 'LOCAL', priority: 100 },
   { regex: '(^|\\.)int\\.', color: '#2196F3', label: 'INT', priority: 80 },
   { regex: '(^|\\.)uat\\.', color: '#FF9800', label: 'UAT', priority: 60 },
   { regex: '(^|\\.)prod\\.', color: '#F44336', label: 'PROD', priority: 40 }
 ];
+
 const rulesContainer = document.getElementById('rules');
 const addButton = document.getElementById('add');
 const saveButton = document.getElementById('save');
 const exportButton = document.getElementById('export');
 const importButton = document.getElementById('import');
 const fileInput = document.getElementById('fileInput');
+const toastContain = document.getElementById('toastContain');
 
 function createField(element, input) {
   const label = document.createElement(element);
@@ -49,11 +60,16 @@ function createRow(r = {regex: '', color: '#000000', label: '', priority: 50}, i
 
   const d = document.createElement('tr');
   d.id = 'rule_' + index;
+  const roleId = document.createElement('p');
   const regex = document.createElement('input');
   const color = document.createElement('input');
   const label = document.createElement('input');
   const priority = document.createElement('input');
   const remove = document.createElement('button');
+
+  roleId.id = 'roleId' + index;
+  roleId.className = 'roleId';
+  roleId.innerHTML = `${index + 1}`;
 
   regex.id = 'regex_' + index;
   regex.type = 'text';
@@ -89,7 +105,8 @@ function createRow(r = {regex: '', color: '#000000', label: '', priority: 50}, i
   });
 
   d.append(
-    createField('th', regex),
+    createField('th', roleId),
+    createField('td', regex),
     createField('td', color),
     createField('td', label),
     createField('td', priority),
@@ -147,24 +164,40 @@ function collect() {
   }));
 }
 
-addButton.addEventListener('click', () => rulesContainer.appendChild(createRow()));
+addButton.addEventListener('click', () => {
+  const index = rulesContainer.children.length;
+
+  if (index < MAX_ENTRIES) {
+    rulesContainer.appendChild(createRow());
+  } else {
+    toast("You reached max entries!");
+  }
+});
 saveButton.addEventListener('click', () => {
   try {
     const rules = validateRules(collect());
-    chrome.storage.sync.set({rules}, () => alert('Saved'));
+    chrome.storage.sync.set({rules}, () => toast("Entries saved!",'toast-info'));
   } catch (error) {
-    alert(error.message);
+    toast(error.message || 'Entries cannot be saved!');
   }
 });
 
 exportButton.addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(collect(), null, 2)]);
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'rules.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 0);
+  try{
+    const rules = validateRules(collect());
+
+    const blob = new Blob([stringify(rules, null, 2)]);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = FILE_NAME;
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 0);
+  } catch (error) {
+    toast(error.message || 'Entries cannot be saved!');
+  }
 });
 
 importButton.addEventListener('click', () => fileInput.click());
@@ -175,20 +208,33 @@ fileInput.addEventListener('change', e => {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      const parsed = JSON.parse(reader.result);
+      const parsed = parse(reader.result);
       const rules = validateRules(parsed);
       chrome.storage.sync.set({rules}, () => renderRules(rules));
     } catch (error) {
-      alert(error.message || 'Invalid rules file.');
+      toast(error.message || 'Invalid rules file.');
     } finally {
       e.target.value = '';
     }
   };
   reader.onerror = () => {
-    alert('Could not read the selected file.');
+    toast('Could not read the selected file.');
     e.target.value = '';
   };
   reader.readAsText(file);
 });
+
+function toast(message, extraClasses = "toast-error") {
+  const EL = document.createElement("div");
+  if(extraClasses !== undefined || extraClasses !== "") {
+    EL.classList.add("toast", extraClasses);
+  }
+  EL.innerText = message;
+  toastContain.prepend(EL);
+
+  setTimeout(() => EL.classList.add("open"), 10);
+  setTimeout(() => EL.classList.remove("open"), DISPLAY_DUR);
+  setTimeout(() => toastContain.removeChild(EL), DISPLAY_DUR + FADE_DUR);
+}
 
 load();
