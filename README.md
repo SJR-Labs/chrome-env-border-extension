@@ -32,7 +32,7 @@ When working with multiple environments, it's dangerously easy to:
 This extension provides an immediate, always-visible signal of where you are.
 
 ## Install
-1. Got to: https://github.com/SJR-Labs/chrome-env-border-extension/tags
+1. Got to: https://github.com/SJR-Labs/chrome-env-border-extension/releases
 2. Download the latest release of the extension named `chrome-env-border-extension-{version}.zip`.
 3. Extract the zip file
 4. Open Chrome / Brave
